@@ -3,21 +3,19 @@
 import { useEffect, useState } from "react";
 import DashboardCard from "@/components/DashboardCard";
 
-const initialTasks = [
-  "Read a few pages",
-  "Move my body",
-  "Take a mindful break",
-];
+type Task = {
+  id: string;
+  title: string;
+  completed: boolean;
+  category: "Daily" | "Weekly" | "Monthly" | "Yearly";
+};
 
 export default function Home() {
-  const [completed, setCompleted] = useState<boolean[]>([
-    false,
-    false,
-    false,
-  ]);
+  const [tasks, setTasks] = useState<Task[]>([]);
   const [ready, setReady] = useState(false);
   const [today, setToday] = useState("");
 
+  // Load the same tasks used by the To-Dos page
   useEffect(() => {
     setToday(
       new Date().toLocaleDateString("en-US", {
@@ -27,43 +25,71 @@ export default function Home() {
       })
     );
 
-    try {
-      const saved = localStorage.getItem("miniverse-tasks");
-      if (saved) {
-        const parsed: unknown = JSON.parse(saved);
+    function loadTasks() {
+      try {
+        const saved = localStorage.getItem("miniverse-todos");
 
-        if (
-          Array.isArray(parsed) &&
-          parsed.length === initialTasks.length &&
-          parsed.every((item) => typeof item === "boolean")
-        ) {
-          setCompleted(parsed);
+        if (saved) {
+          const parsed: unknown = JSON.parse(saved);
+
+          if (Array.isArray(parsed)) {
+            setTasks(parsed as Task[]);
+          } else {
+            setTasks([]);
+          }
+        } else {
+          setTasks([]);
         }
+      } catch {
+        setTasks([]);
       }
-    } catch {
-      // Keep the default tasks if saved data is invalid.
+
+      setReady(true);
     }
 
-    setReady(true);
+    loadTasks();
+
+    window.addEventListener("focus", loadTasks);
+    window.addEventListener("storage", loadTasks);
+
+    return () => {
+      window.removeEventListener("focus", loadTasks);
+      window.removeEventListener("storage", loadTasks);
+    };
   }, []);
 
-  function toggleTask(index: number) {
-    const updated = completed.map((value, i) =>
-      i === index ? !value : value
+  // Complete or uncomplete a task from the dashboard
+  function toggleTask(id: string) {
+    const updated = tasks.map((task) =>
+      task.id === id
+        ? { ...task, completed: !task.completed }
+        : task
     );
 
-    setCompleted(updated);
+    setTasks(updated);
+
     localStorage.setItem(
-      "miniverse-tasks",
+      "miniverse-todos",
       JSON.stringify(updated)
     );
   }
 
-  const doneCount = completed.filter(Boolean).length;
-  const percentage = (doneCount / initialTasks.length) * 100;
+  // Show only Daily tasks on the homepage
+  const dailyTasks = tasks.filter(
+    (task) => task.category === "Daily"
+  );
+
+  const doneCount = dailyTasks.filter(
+    (task) => task.completed
+  ).length;
+
+  const percentage = dailyTasks.length
+    ? (doneCount / dailyTasks.length) * 100
+    : 0;
 
   return (
     <div className="space-y-7">
+      {/* Top label */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-xs font-semibold tracking-[0.2em] text-[#a38481]">
           ✦ YOUR COZY CORNER
@@ -74,6 +100,7 @@ export default function Home() {
         </span>
       </div>
 
+      {/* Welcome header */}
       <header>
         <h1 className="font-serif text-3xl font-bold md:text-4xl">
           Good morning, sunshine! ☀️
@@ -88,6 +115,7 @@ export default function Home() {
         </p>
       </header>
 
+      {/* Daily reminder banner */}
       <section className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#e7c5c2] via-[#f4dfd2] to-[#d9c6b7] p-7 md:p-9">
         <p className="text-xs font-semibold tracking-[0.2em] text-[#865d60]">
           TODAY&apos;S LITTLE REMINDER
@@ -107,6 +135,7 @@ export default function Home() {
         </span>
       </section>
 
+      {/* Progress cards */}
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         <DashboardCard
           title="Reading Progress"
@@ -116,9 +145,14 @@ export default function Home() {
           <p className="text-xs uppercase tracking-wider text-[#947c76]">
             Your current book
           </p>
+
           <p className="mt-3 text-2xl font-bold">
-            0 <span className="text-sm font-normal">pages</span>
+            0{" "}
+            <span className="text-sm font-normal">
+              pages
+            </span>
           </p>
+
           <div className="mt-4 h-2 rounded-full bg-[#f1e2de]" />
         </DashboardCard>
 
@@ -130,25 +164,36 @@ export default function Home() {
           <p className="text-xs uppercase tracking-wider text-[#947c76]">
             Movement goal
           </p>
+
           <p className="mt-3 text-2xl font-bold">
-            0 <span className="text-sm font-normal">/ 8,000</span>
+            0{" "}
+            <span className="text-sm font-normal">
+              / 8,000
+            </span>
           </p>
+
           <div className="mt-4 h-2 rounded-full bg-[#f1e2de]" />
         </DashboardCard>
 
-        <DashboardCard title="Tasks Completed" emoji="✨">
+        <DashboardCard
+          title="Tasks Completed"
+          emoji="✨"
+          href="/todos"
+        >
           <p className="text-xs uppercase tracking-wider text-[#947c76]">
             Today&apos;s progress
           </p>
 
           <p className="mt-3 text-2xl font-bold">
             {ready ? doneCount : 0}
-            <span className="text-sm font-normal"> / 3</span>
+            <span className="text-sm font-normal">
+              {" "} / {ready ? dailyTasks.length : 0}
+            </span>
           </p>
 
           <div className="mt-4 h-2 overflow-hidden rounded-full bg-[#f1e2de]">
             <div
-              className="h-full rounded-full bg-[#d9a4ab] transition-all"
+              className="h-full rounded-full bg-[#d9a4ab] transition-all duration-300"
               style={{
                 width: `${ready ? percentage : 0}%`,
               }}
@@ -157,39 +202,66 @@ export default function Home() {
         </DashboardCard>
       </section>
 
+      {/* Main dashboard widgets */}
       <section className="grid gap-4 lg:grid-cols-2">
-        <DashboardCard title="Today's Little Goals" emoji="✏️">
+        {/* Real daily tasks */}
+        <DashboardCard
+          title="Today's Little Goals"
+          emoji="✏️"
+        >
           <div className="space-y-4">
-            {initialTasks.map((task, index) => (
-              <label
-                key={task}
-                className="flex cursor-pointer items-center gap-3 text-sm"
-              >
-                <input
-                  type="checkbox"
-                  checked={ready ? completed[index] : false}
-                  onChange={() => toggleTask(index)}
-                  className="h-4 w-4 accent-[#b78591]"
-                />
+            {!ready ? (
+              <p className="text-sm text-[#947c76]">
+                Loading your goals...
+              </p>
+            ) : dailyTasks.length === 0 ? (
+              <div className="py-5 text-center">
+                <p className="text-3xl">🌷</p>
 
-                <span
-                  className={
-                    ready && completed[index]
-                      ? "text-[#a38e87] line-through"
-                      : ""
-                  }
+                <p className="mt-3 text-sm text-[#947c76]">
+                  No daily goals yet!
+                </p>
+
+                <p className="mt-1 text-xs text-[#a38481]">
+                  Visit To-Dos to add your first daily goal.
+                </p>
+              </div>
+            ) : (
+              dailyTasks.map((task) => (
+                <label
+                  key={task.id}
+                  className="flex cursor-pointer items-center gap-3 text-sm"
                 >
-                  {task}
-                </span>
-              </label>
-            ))}
+                  <input
+                    type="checkbox"
+                    checked={task.completed}
+                    onChange={() => toggleTask(task.id)}
+                    className="h-4 w-4 accent-[#b78591]"
+                  />
+
+                  <span
+                    className={
+                      task.completed
+                        ? "text-[#a38e87] line-through"
+                        : ""
+                    }
+                  >
+                    {task.title}
+                  </span>
+                </label>
+              ))
+            )}
           </div>
 
-          <p className="mt-6 text-xs text-[#947c76]">
-            Every little win counts ♡
-          </p>
+          <a
+            href="/todos"
+            className="mt-6 inline-block text-xs font-semibold text-[#9d717e] hover:underline"
+          >
+            Manage all my goals ♡
+          </a>
         </DashboardCard>
 
+        {/* Bible widget */}
         <DashboardCard
           title="A Quiet Moment"
           emoji="🕊️"
@@ -204,6 +276,7 @@ export default function Home() {
           </p>
         </DashboardCard>
 
+        {/* Music widget */}
         <DashboardCard
           title="The Music Lounge"
           emoji="🎧"
@@ -230,7 +303,11 @@ export default function Home() {
           </p>
         </DashboardCard>
 
-        <DashboardCard title="Little Joys" emoji="🎀">
+        {/* Little joys */}
+        <DashboardCard
+          title="Little Joys"
+          emoji="🎀"
+        >
           <div className="space-y-3 text-sm">
             <p>🍓 A slow morning</p>
             <p>🌷 Fresh flowers</p>
