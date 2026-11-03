@@ -1,0 +1,26 @@
+{
+  "name": "miniverse",
+  "version": "1.0.0",
+  "description": "A cozy, anime-inspired life dashboard built with:  * Next.js * TypeScript * Tailwind CSS * PostgreSQL * Prisma",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/brownng2/miniverse.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/brownng2/miniverse/issues"
+  },
+  "homepage": "https://github.com/brownng2/miniverse#readme",
+  "dependencies": {
+    "next": "^16.4.4",
+    "react": "^19.3.1",
+    "react-dom": "^19.3.1"
+  }
+}
