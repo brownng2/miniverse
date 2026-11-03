@@ -8,50 +8,51 @@ export default function Sidebar() {
   const pathname = usePathname();
 
   return (
-    <aside className="min-h-screen w-64 shrink-0 bg-[#2b1f1a] px-5 py-8 text-[#f7eadf]">
-      {/* Miniverse Branding */}
-      <div className="mb-10 px-3">
-        <h1 className="text-3xl font-bold tracking-tight">
-          Miniverse ☕
-        </h1>
+    <aside className="w-full shrink-0 bg-[#49332f] px-4 py-6 text-[#f9eae0] md:min-h-screen md:w-56 md:px-4 md:py-8">
+      <div className="px-3 pb-7">
+        <Link
+          href="/"
+          className="font-serif text-3xl font-bold tracking-tight"
+        >
+          miniverse <span className="text-[#efbfc2]">✿</span>
+        </Link>
 
-        <p className="mt-2 text-sm text-[#d8bba8]">
-          your cozy little universe
+        <p className="mt-2 text-xs text-[#d6b8ad]">
+          your little corner of the universe
         </p>
-
-        <div className="mt-5 h-px bg-[#6b5045]" />
       </div>
 
-      {/* Navigation */}
-      <nav className="space-y-2">
+      <p className="hidden px-3 pb-3 text-[10px] tracking-[0.2em] text-[#cbaea5] md:block">
+        YOUR SPACE
+      </p>
+
+      <nav className="flex gap-1 overflow-x-auto md:flex-col md:gap-1">
         {navItems.map((item) => {
-          const isActive = pathname === item.href;
+          const active = pathname === item.href;
 
           return (
             <Link
               key={item.href}
               href={item.href}
-              className={`flex items-center gap-3 rounded-2xl px-4 py-3 text-sm font-medium transition-all duration-200 ${
-                isActive
-                  ? "bg-[#d9a5a5] text-[#35251f] shadow-md"
-                  : "text-[#ead8cb] hover:bg-[#4a352d]"
+              className={`flex shrink-0 items-center gap-3 rounded-xl px-4 py-3 text-sm transition-colors ${
+                active
+                  ? "bg-[#e2b9b6] font-semibold text-[#49332f]"
+                  : "text-[#f0ded5] hover:bg-[#624944]"
               }`}
             >
-              <span className="text-lg">{item.emoji}</span>
+              <span>{item.emoji}</span>
               <span>{item.name}</span>
             </Link>
           );
         })}
       </nav>
 
-      {/* Bottom Message */}
-      <div className="mt-12 rounded-2xl bg-[#4a352d] p-4">
+      <div className="mt-14 hidden rounded-2xl bg-[#604742] p-4 md:block">
         <p className="text-sm font-semibold">
           🌙 A little reminder
         </p>
-        <p className="mt-2 text-xs leading-relaxed text-[#d8bba8]">
-          You don't have to do everything today.
-          Just keep growing at your own pace.
+        <p className="mt-2 text-xs leading-6 text-[#ead1c6]">
+          Bloom at your own pace. You are doing enough.
         </p>
       </div>
     </aside>
