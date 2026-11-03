@@ -1,7 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import DashboardCard from "@/components/DashboardCard";
+
+// -------------------------
+// TYPES
+// -------------------------
 
 type Task = {
   id: string;
@@ -10,12 +15,32 @@ type Task = {
   category: "Daily" | "Weekly" | "Monthly" | "Yearly";
 };
 
+type Book = {
+  id: string;
+  title: string;
+  author: string;
+  totalPages: number;
+  currentPage: number;
+  status: "Want to Read" | "Reading" | "Finished";
+  rating: number;
+  notes: string;
+  cover: string;
+};
+
+// -------------------------
+// HOME DASHBOARD
+// -------------------------
+
 export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [books, setBooks] = useState<Book[]>([]);
   const [ready, setReady] = useState(false);
   const [today, setToday] = useState("");
 
-  // Load the same tasks used by the To-Dos page
+  // -------------------------
+  // LOAD SAVED DATA
+  // -------------------------
+
   useEffect(() => {
     setToday(
       new Date().toLocaleDateString("en-US", {
@@ -25,18 +50,17 @@ export default function Home() {
       })
     );
 
-    function loadTasks() {
+    function loadData() {
+      // Load To-Dos
       try {
-        const saved = localStorage.getItem("miniverse-todos");
+        const savedTasks = localStorage.getItem("miniverse-todos");
 
-        if (saved) {
-          const parsed: unknown = JSON.parse(saved);
+        if (savedTasks) {
+          const parsed: unknown = JSON.parse(savedTasks);
 
-          if (Array.isArray(parsed)) {
-            setTasks(parsed as Task[]);
-          } else {
-            setTasks([]);
-          }
+          setTasks(
+            Array.isArray(parsed) ? (parsed as Task[]) : []
+          );
         } else {
           setTasks([]);
         }
@@ -44,21 +68,42 @@ export default function Home() {
         setTasks([]);
       }
 
+      // Load Bookshelf
+      try {
+        const savedBooks = localStorage.getItem("miniverse-books");
+
+        if (savedBooks) {
+          const parsed: unknown = JSON.parse(savedBooks);
+
+          setBooks(
+            Array.isArray(parsed) ? (parsed as Book[]) : []
+          );
+        } else {
+          setBooks([]);
+        }
+      } catch {
+        setBooks([]);
+      }
+
       setReady(true);
     }
 
-    loadTasks();
+    loadData();
 
-    window.addEventListener("focus", loadTasks);
-    window.addEventListener("storage", loadTasks);
+    // Refresh data when returning to the website
+    window.addEventListener("focus", loadData);
+    window.addEventListener("storage", loadData);
 
     return () => {
-      window.removeEventListener("focus", loadTasks);
-      window.removeEventListener("storage", loadTasks);
+      window.removeEventListener("focus", loadData);
+      window.removeEventListener("storage", loadData);
     };
   }, []);
 
-  // Complete or uncomplete a task from the dashboard
+  // -------------------------
+  // TASK FUNCTIONS
+  // -------------------------
+
   function toggleTask(id: string) {
     const updated = tasks.map((task) =>
       task.id === id
@@ -74,7 +119,7 @@ export default function Home() {
     );
   }
 
-  // Show only Daily tasks on the homepage
+  // Show Daily tasks on dashboard
   const dailyTasks = tasks.filter(
     (task) => task.category === "Daily"
   );
@@ -83,13 +128,35 @@ export default function Home() {
     (task) => task.completed
   ).length;
 
-  const percentage = dailyTasks.length
+  const taskPercentage = dailyTasks.length
     ? (doneCount / dailyTasks.length) * 100
     : 0;
 
+  // -------------------------
+  // BOOK FUNCTIONS
+  // -------------------------
+
+  // Display first book marked Reading
+  const currentBook = books.find(
+    (book) => book.status === "Reading"
+  );
+
+  const readingPercentage =
+    currentBook && currentBook.totalPages > 0
+      ? Math.min(
+          100,
+          (currentBook.currentPage / currentBook.totalPages) * 100
+        )
+      : 0;
+
+  // -------------------------
+  // DASHBOARD UI
+  // -------------------------
+
   return (
     <div className="space-y-7">
-      {/* Top label */}
+
+      {/* TOP LABEL */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <p className="text-xs font-semibold tracking-[0.2em] text-[#a38481]">
           ✦ YOUR COZY CORNER
@@ -100,7 +167,7 @@ export default function Home() {
         </span>
       </div>
 
-      {/* Welcome header */}
+      {/* WELCOME HEADER */}
       <header>
         <h1 className="font-serif text-3xl font-bold md:text-4xl">
           Good morning, sunshine! ☀️
@@ -115,7 +182,7 @@ export default function Home() {
         </p>
       </header>
 
-      {/* Daily reminder banner */}
+      {/* DAILY REMINDER */}
       <section className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-[#e7c5c2] via-[#f4dfd2] to-[#d9c6b7] p-7 md:p-9">
         <p className="text-xs font-semibold tracking-[0.2em] text-[#865d60]">
           TODAY&apos;S LITTLE REMINDER
@@ -135,53 +202,98 @@ export default function Home() {
         </span>
       </section>
 
-      {/* Progress cards */}
+      {/* PROGRESS CARDS */}
       <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+
+        {/* READING PROGRESS */}
         <DashboardCard
           title="Reading Progress"
           emoji="📖"
           href="/books"
         >
-          <p className="text-xs uppercase tracking-wider text-[#947c76]">
-            Your current book
-          </p>
+          {!ready ? (
+            <p className="text-sm text-[#947c76]">
+              Loading your books...
+            </p>
+          ) : currentBook ? (
+            <>
+              <p className="text-xs uppercase tracking-wider text-[#947c76]">
+                Currently Reading
+              </p>
 
-          <p className="mt-3 text-2xl font-bold">
-            0{" "}
-            <span className="text-sm font-normal">
-              pages
-            </span>
-          </p>
+              <h3 className="mt-3 font-serif text-lg font-bold">
+                {currentBook.title}
+              </h3>
 
-          <div className="mt-4 h-2 rounded-full bg-[#f1e2de]" />
+              <p className="mt-1 text-xs text-[#947c76]">
+                by {currentBook.author || "Unknown Author"}
+              </p>
+
+              <p className="mt-4 text-2xl font-bold">
+                {currentBook.currentPage}
+                <span className="text-sm font-normal text-[#947c76]">
+                  {" "} / {currentBook.totalPages} pages
+                </span>
+              </p>
+
+              <div className="mt-4 h-2 overflow-hidden rounded-full bg-[#f1e2de]">
+                <div
+                  className="h-full rounded-full bg-[#d9a4ab] transition-all duration-300"
+                  style={{
+                    width: `${readingPercentage}%`,
+                  }}
+                />
+              </div>
+
+              <p className="mt-2 text-right text-xs text-[#947c76]">
+                {Math.round(readingPercentage)}% complete
+              </p>
+            </>
+          ) : (
+            <>
+              <p className="text-xs uppercase tracking-wider text-[#947c76]">
+                Your Current Book
+              </p>
+
+              <p className="mt-4 text-sm text-[#947c76]">
+                No book currently being read.
+              </p>
+
+              <p className="mt-3 text-xs font-semibold text-[#9d717e]">
+                Visit your Bookshelf to start reading ♡
+              </p>
+            </>
+          )}
         </DashboardCard>
 
+        {/* FITNESS PROGRESS */}
         <DashboardCard
           title="Daily Steps"
           emoji="🌿"
           href="/fitness"
         >
           <p className="text-xs uppercase tracking-wider text-[#947c76]">
-            Movement goal
+            Movement Goal
           </p>
 
           <p className="mt-3 text-2xl font-bold">
-            0{" "}
+            0
             <span className="text-sm font-normal">
-              / 8,000
+              {" "} / 8,000
             </span>
           </p>
 
           <div className="mt-4 h-2 rounded-full bg-[#f1e2de]" />
         </DashboardCard>
 
+        {/* TASK PROGRESS */}
         <DashboardCard
           title="Tasks Completed"
           emoji="✨"
           href="/todos"
         >
           <p className="text-xs uppercase tracking-wider text-[#947c76]">
-            Today&apos;s progress
+            Today&apos;s Progress
           </p>
 
           <p className="mt-3 text-2xl font-bold">
@@ -195,16 +307,17 @@ export default function Home() {
             <div
               className="h-full rounded-full bg-[#d9a4ab] transition-all duration-300"
               style={{
-                width: `${ready ? percentage : 0}%`,
+                width: `${ready ? taskPercentage : 0}%`,
               }}
             />
           </div>
         </DashboardCard>
       </section>
 
-      {/* Main dashboard widgets */}
+      {/* MAIN DASHBOARD WIDGETS */}
       <section className="grid gap-4 lg:grid-cols-2">
-        {/* Real daily tasks */}
+
+        {/* TODAY'S LITTLE GOALS */}
         <DashboardCard
           title="Today's Little Goals"
           emoji="✏️"
@@ -253,15 +366,15 @@ export default function Home() {
             )}
           </div>
 
-          <a
+          <Link
             href="/todos"
             className="mt-6 inline-block text-xs font-semibold text-[#9d717e] hover:underline"
           >
             Manage all my goals ♡
-          </a>
+          </Link>
         </DashboardCard>
 
-        {/* Bible widget */}
+        {/* BIBLE WIDGET */}
         <DashboardCard
           title="A Quiet Moment"
           emoji="🕊️"
@@ -276,7 +389,7 @@ export default function Home() {
           </p>
         </DashboardCard>
 
-        {/* Music widget */}
+        {/* MUSIC WIDGET */}
         <DashboardCard
           title="The Music Lounge"
           emoji="🎧"
@@ -303,7 +416,7 @@ export default function Home() {
           </p>
         </DashboardCard>
 
-        {/* Little joys */}
+        {/* LITTLE JOYS */}
         <DashboardCard
           title="Little Joys"
           emoji="🎀"
