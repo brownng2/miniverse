@@ -4,7 +4,11 @@
   "description": "A cozy, anime-inspired life dashboard built with:  * Next.js * TypeScript * Tailwind CSS * PostgreSQL * Prisma",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "tsc --noEmit"
   },
   "repository": {
     "type": "git",
