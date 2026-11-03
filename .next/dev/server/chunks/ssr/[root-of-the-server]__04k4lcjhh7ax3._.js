@@ -176,24 +176,24 @@ const navItems = [
         emoji: "☕"
     },
     {
-        name: "Books",
+        name: "Bookshelf",
         href: "/books",
         emoji: "📚"
     },
     {
-        name: "Fitness",
+        name: "Fitness Garden",
         href: "/fitness",
         emoji: "🌿"
     },
     {
-        name: "Bible",
+        name: "Bible Journal",
         href: "/bible",
         emoji: "🕊️"
     },
     {
         name: "To-Dos",
         href: "/todos",
-        emoji: "✨"
+        emoji: "✏️"
     },
     {
         name: "Calendar",
@@ -201,12 +201,12 @@ const navItems = [
         emoji: "🗓️"
     },
     {
-        name: "Watchlist",
+        name: "Watch Diary",
         href: "/watchlist",
         emoji: "🎬"
     },
     {
-        name: "Music",
+        name: "Music Lounge",
         href: "/music",
         emoji: "🎧"
     }

@@ -2,5 +2,5 @@
   "version": 3,
   "sources": [],
   "sections": [
-    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["file:///workspaces/miniverse/src/app/globals.css"],"sourcesContent":[""],"names":[],"mappings":""}}]
+    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["file:///workspaces/miniverse/src/app/globals.css"],"sourcesContent":["@import \"tailwindcss\";\n\n:root {\n  --background: #faf4ec;\n  --foreground: #49332f;\n  --espresso: #49332f;\n  --rose: #d9a4ab;\n  --muted: #947c76;\n}\n\n* {\n  box-sizing: border-box;\n}\n\nhtml {\n  min-height: 100%;\n}\n\nbody {\n  margin: 0;\n  min-height: 100vh;\n  background: var(--background);\n  color: var(--foreground);\n  font-family: Arial, Helvetica, sans-serif;\n}\n\nbutton,\ninput {\n  font: inherit;\n}\n\nbutton {\n  cursor: pointer;\n}\n\n::selection {\n  background: #e7c5c2;\n  color: #49332f;\n}\n"],"names":[],"mappings":"AAEA;;;;;;;;AAQA;;;;AAIA;;;;AAIA;;;;;;;;AAQA;;;;AAKA;;;;AAIA"}}]
 }
