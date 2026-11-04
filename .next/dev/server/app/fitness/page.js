@@ -1,6 +1,6 @@
 var R=require("../../chunks/ssr/[turbopack]_runtime.js")("server/app/fitness/page.js")
-R.c("server/chunks/ssr/node_modules_1mn2y9a6ntze8._.js")
-R.c("server/chunks/ssr/[root-of-the-server]__19c_36snmu4zz._.js")
+R.c("server/chunks/ssr/node_modules_next_dist_1i954dziy-qn2._.js")
+R.c("server/chunks/ssr/[root-of-the-server]__1nw5fbqyfn7-d._.js")
 R.c("server/chunks/ssr/node_modules_next_dist_esm_server_0tv59ssci6i6v._.js")
 R.c("server/chunks/ssr/node_modules_next_dist_esm_shared_lib_0rwgfgpa-cexu._.js")
 R.c("server/chunks/ssr/node_modules_next_dist_esm_lib_0i7_y587f5_nr._.js")

@@ -27,6 +27,18 @@ type Book = {
   cover: string;
 };
 
+type FitnessData = {
+  date: string;
+  steps: number;
+  stepGoal: number;
+  workouts: {
+    id: string;
+    name: string;
+    duration: number;
+    date: string;
+    notes: string;
+  }[];
+};
 // -------------------------
 // HOME DASHBOARD
 // -------------------------
@@ -34,6 +46,7 @@ type Book = {
 export default function Home() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [books, setBooks] = useState<Book[]>([]);
+  const [fitness, setFitness] = useState<FitnessData | null>(null);
   const [ready, setReady] = useState(false);
   const [today, setToday] = useState("");
 
@@ -86,6 +99,24 @@ export default function Home() {
       }
 
       setReady(true);
+    }
+
+    // Load fitness information
+    try {
+      const savedFitness = localStorage.getItem("miniverse-fitness");
+
+      if (savedFitness) {
+        const parsed = JSON.parse(savedFitness) as FitnessData;
+
+        const now = new Date();
+        const todayKey = `${now.getFullYear()}-` + `${String(now.getMonth() + 1).padStart(2, "0")}-` + `${String(now.getDate()).padStart(2, "0")}`;
+
+        setFitness({ ...parsed, steps: parsed.date === todayKey ? parsed.steps : 0, });
+      } else {
+        setFitness(null);
+      }
+    } catch {
+      setFitness(null);
     }
 
     loadData();
@@ -144,9 +175,9 @@ export default function Home() {
   const readingPercentage =
     currentBook && currentBook.totalPages > 0
       ? Math.min(
-          100,
-          (currentBook.currentPage / currentBook.totalPages) * 100
-        )
+        100,
+        (currentBook.currentPage / currentBook.totalPages) * 100
+      )
       : 0;
 
   // -------------------------
@@ -277,13 +308,34 @@ export default function Home() {
           </p>
 
           <p className="mt-3 text-2xl font-bold">
-            0
-            <span className="text-sm font-normal">
-              {" "} / 8,000
+            {ready ? (fitness?.steps ?? 0).toLocaleString() : "—"}
+            <span className="text-sm font-normal text-[#947c76]">
+              {" "} / {(fitness?.stepGoal ?? 8000).toLocaleString()}
             </span>
           </p>
 
-          <div className="mt-4 h-2 rounded-full bg-[#f1e2de]" />
+          <div className="mt-4 h-2 overflow-hidden rounded-full bg-[#f1e2de]">
+            <div
+              className="h-full rounded-full bg-[#a6bba4] transition-all duration-300"
+              style={{
+                width: `${fitness && fitness.stepGoal > 0
+                    ? Math.min(
+                      100,
+                      (fitness.steps / fitness.stepGoal) * 100
+                    )
+                    : 0
+                  }%`,
+              }}
+            />
+          </div>
+
+          <p className="mt-2 text-right text-xs text-[#947c76]">
+            {fitness && fitness.stepGoal > 0
+              ? Math.round(
+                (fitness.steps / fitness.stepGoal) * 100
+              )
+              : 0}% of daily goal
+          </p>
         </DashboardCard>
 
         {/* TASK PROGRESS */}

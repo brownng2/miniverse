@@ -514,6 +514,10 @@
     align-items: center;
   }
 
+  .items-start {
+    align-items: flex-start;
+  }
+
   .justify-between {
     justify-content: space-between;
   }
@@ -619,6 +623,10 @@
 
   .bg-\[\#604742\] {
     background-color: #604742;
+  }
+
+  .bg-\[\#a6bba4\] {
+    background-color: #a6bba4;
   }
 
   .bg-\[\#d9a4ab\] {
@@ -760,6 +768,10 @@
     padding-block: calc(var(--spacing) * 7);
   }
 
+  .py-8 {
+    padding-block: calc(var(--spacing) * 8);
+  }
+
   .py-10 {
     padding-block: calc(var(--spacing) * 10);
   }
@@ -894,6 +906,10 @@
 
   .whitespace-pre-wrap {
     white-space: pre-wrap;
+  }
+
+  .text-\[\#6e9670\] {
+    color: #6e9670;
   }
 
   .text-\[\#9d717e\] {
